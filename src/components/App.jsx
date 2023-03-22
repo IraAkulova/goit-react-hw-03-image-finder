@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button } from './button/Button';
 import { ImageGallery } from './imageGallery/ImageGallery';
+import { Loader } from './loader/Loader';
 import { Searchbar } from './searchbar/Searchbar';
 
 export class App extends Component {
@@ -52,6 +53,9 @@ export class App extends Component {
     return (
       <div>
         <Searchbar onSubmit={this.formSubmitHandler} />
+        {this.state.images.length === 0 && (
+          <Loader />
+        )}
         {this.state.images.length > 0 && (
           <ImageGallery images={this.state.images} />
         )}
