@@ -14,17 +14,15 @@ export class App extends Component {
   };
 
   formSubmitHandler = ({ query }) => {
-    console.log(query);
     this.setState({ query });
-    console.log(this.state.query);
-    this.fetchImgs()
+    this.fetchImgs(query)
       .then(imgs => this.setState({ images: imgs.hits }))
       .catch(this.onError);
   };
 
-  fetchImgs = () => {
+  fetchImgs = query => {
     return fetch(
-      `${this.BASE_URL}?q=${this.state.query}&page=1&key=${this.KEY}&image_type=photo&orientation=horizontal&per_page=12&page=${this.state.page}`
+      `${this.BASE_URL}?q=${query}&page=1&key=${this.KEY}&image_type=photo&orientation=horizontal&per_page=12&page=${this.state.page}`
     ).then(response => {
       return response.json();
     });
@@ -42,10 +40,12 @@ export class App extends Component {
 
   componentDidUpdate = (prevProps, prevState) => {
     if (prevState.page < this.state.page) {
-      this.fetchImgs()
-        .then(imgs => this.setState({ images: imgs.hits }))
+      this.fetchImgs(this.state.query)
+        .then(imgs =>
+          this.setState({ images: [...prevState.images, ...imgs.hits] })
+        )
         .catch(this.onError);
-    }
+    };
   };
 
   render() {
