@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button } from './button/Button';
 import { ImageGallery } from './imageGallery/ImageGallery';
 import { Loader } from './loader/Loader';
+import { Modal } from './modal/Modal';
 import { Searchbar } from './searchbar/Searchbar';
 
 export class App extends Component {
@@ -12,6 +13,23 @@ export class App extends Component {
     images: [],
     page: 1,
     query: '',
+    showModal: false,
+    url: '',
+    description: '',
+  };
+
+  componentDidUpdate = (prevProps, prevState) => {
+    if (prevState.page < this.state.page) {
+      this.fetchImgs(this.state.query)
+        .then(imgs =>
+          this.setState({ images: [...prevState.images, ...imgs.hits] })
+        )
+        .catch(this.onError);
+    }
+  };
+
+  toggleModal = (image, name) => {
+  this.setState(state => ({ showModal: !state.showModal, url: image, description: name}));
   };
 
   formSubmitHandler = ({ query }) => {
@@ -39,29 +57,17 @@ export class App extends Component {
     });
   };
 
-  componentDidUpdate = (prevProps, prevState) => {
-    if (prevState.page < this.state.page) {
-      this.fetchImgs(this.state.query)
-        .then(imgs =>
-          this.setState({ images: [...prevState.images, ...imgs.hits] })
-        )
-        .catch(this.onError);
-    };
-  };
-
   render() {
+    const { showModal, images, url, description } = this.state;
     return (
       <div>
+        {showModal && <Modal image={url} name={description} />}
         <Searchbar onSubmit={this.formSubmitHandler} />
-        {this.state.images.length === 0 && (
-          <Loader />
+        {images.length === 0 && <Loader />}
+        {images.length > 0 && (
+          <ImageGallery images={images} toggleModal={this.toggleModal} />
         )}
-        {this.state.images.length > 0 && (
-          <ImageGallery images={this.state.images} />
-        )}
-        {this.state.images.length > 0 && (
-          <Button buttonClick={this.buttonClickHandler} />
-        )}
+        {images.length > 0 && <Button buttonClick={this.buttonClickHandler} />}
       </div>
     );
   }
