@@ -16,21 +16,39 @@ export class App extends Component {
     showModal: false,
     url: '',
     description: '',
-    status: 'idle',
+    loading: false,
   };
 
   componentDidUpdate = (prevProps, prevState) => {
     if (prevState.page < this.state.page) {
-      this.fetchImgs(this.state.query)
-        .then(imgs =>
-          this.setState({ images: [...prevState.images, ...imgs.hits] })
-        )
-        .catch(this.onError);
+      this.setState({ loading: true });
+
+      setTimeout(() => {
+        this.fetchImgs(this.state.query)
+          .then(imgs => this.setState({ images: [...prevState.images, ...imgs.hits] }))
+          .catch(this.onError)
+          .finally(() => {
+            this.setState({ loading: false });
+          });
+      }, 3000);
+
+      // this.fetchImgs(this.state.query)
+      //   .then(imgs =>
+      //     this.setState({ images: [...prevState.images, ...imgs.hits] })
+      //   )
+      //   .catch(this.onError)
+      //   .finally(() => {
+      //     this.setState({ loading: false });
+      //   });
     }
   };
 
   toggleModal = (image, name) => {
-  this.setState(state => ({ showModal: !state.showModal, url: image, description: name}));
+    this.setState(state => ({
+      showModal: !state.showModal,
+      url: image,
+      description: name,
+    }));
   };
 
   formSubmitHandler = ({ query }) => {
@@ -59,7 +77,7 @@ export class App extends Component {
   };
 
   render() {
-    const { showModal, images, url, description } = this.state;
+    const { showModal, images, url, description, loading } = this.state;
     return (
       <div>
         {showModal && (
@@ -70,10 +88,10 @@ export class App extends Component {
           />
         )}
         <Searchbar onSubmit={this.formSubmitHandler} />
-        {images.length === 0 && <Loader />}
         {images.length > 0 && (
           <ImageGallery images={images} toggleModal={this.toggleModal} />
         )}
+        {loading && <Loader />}
         {images.length > 0 && <Button buttonClick={this.buttonClickHandler} />}
       </div>
     );
