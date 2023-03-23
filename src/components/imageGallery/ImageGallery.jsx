@@ -1,5 +1,6 @@
 import { ImageGalleryItem } from '../imageGalleryItem/imageGalleryItem';
 import css from '../imageGallery/ImageGallery.module.css';
+import PropTypes from 'prop-types';
 
 export const ImageGallery = ({ images, toggleModal }) => {
   return (
@@ -14,4 +15,9 @@ export const ImageGallery = ({ images, toggleModal }) => {
       ))}
     </ul>
   );
+};
+
+ImageGallery.propTypes = {
+  images: PropTypes.array,
+  toggleModal: PropTypes.func,
 };

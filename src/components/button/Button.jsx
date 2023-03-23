@@ -1,4 +1,5 @@
 import css from '../button/Button.module.css';
+import PropTypes from 'prop-types';
 
 export const Button = ({ buttonClick }) => {
   return (
@@ -6,4 +7,8 @@ export const Button = ({ buttonClick }) => {
       Load more
     </button>
   );
+};
+
+Button.propTypes = {
+  buttonClick: PropTypes.func,
 };
