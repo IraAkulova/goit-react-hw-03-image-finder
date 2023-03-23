@@ -16,15 +16,21 @@ export class App extends Component {
     showModal: false,
     url: '',
     description: '',
+    status: 'idle',
   };
 
   componentDidUpdate = (prevProps, prevState) => {
     if (prevState.page < this.state.page) {
-      this.fetchImgs(this.state.query)
-        .then(imgs =>
-          this.setState({ images: [...prevState.images, ...imgs.hits] })
-        )
-        .catch(this.onError);
+      this.setState({ status: 'pending' });
+      setTimeout(() => {
+        this.fetchImgs(this.state.query)
+          .then(imgs =>
+            this.setState({ images: [...prevState.images, ...imgs.hits] })
+          )
+          .catch(this.onError);
+      }, 2000);
+      
+      
     }
   };
 
@@ -48,7 +54,7 @@ export class App extends Component {
   };
 
   onError = error => {
-    alert(`Oops, there is no images wiht such tag`);
+    alert(`Oops, there is no images wiht such tag`, error.message);
   };
 
   buttonClickHandler = () => {
@@ -58,7 +64,20 @@ export class App extends Component {
   };
 
   render() {
-    const { showModal, images, url, description } = this.state;
+    const { showModal, images, url, description, status } = this.state;
+
+    if (status === 'idle') {
+      return <Searchbar onSubmit={this.formSubmitHandler} />;
+    };
+    if (status === 'pending') {
+      return <Loader />;
+    };
+    if (status === 'resolved') {
+      return <ImageGallery images={images} toggleModal={this.toggleModal} />;
+    }
+    // if (status === 'rejectet') {
+    //   return <div><p></p></div>
+    // }
     return (
       <div>
         {showModal && (
