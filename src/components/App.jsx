@@ -61,7 +61,13 @@ export class App extends Component {
     const { showModal, images, url, description } = this.state;
     return (
       <div>
-        {showModal && <Modal image={url} name={description} />}
+        {showModal && (
+          <Modal
+            image={url}
+            name={description}
+            toggleModal={this.toggleModal}
+          />
+        )}
         <Searchbar onSubmit={this.formSubmitHandler} />
         {images.length === 0 && <Loader />}
         {images.length > 0 && (

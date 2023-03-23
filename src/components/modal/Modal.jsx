@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
+import { createPortal } from 'react-dom';
 import css from '../modal/Modal.module.css';
+
+const modalRoot = document.querySelector('#modal-root');
 
 export class Modal extends Component {
   state = {
@@ -8,28 +11,36 @@ export class Modal extends Component {
   };
 
   componentDidMount() {
-      window.addEventListener('keydown', this.keyClose);
+      window.addEventListener('keydown', this.handleKeyDown);
       this.setState({ image: this.props.image, name: this.props.name });
     };
 
   componentWillUnmount() {
-    window.addEventListener('keydown', this.keyClose);
+      window.removeEventListener('keydown', this.handleKeyDown);
+      this.setState({ image: '', name: '' });
     };
-
-  keyClose = e => {
+    
+    handleKeyDown = e => {
+        console.log(e.code);
     if (e.code === 'Escape') {
-      this.props.onModalClose();
+      this.props.toggleModal();
     }
-  };
+    };
+    
+    handleOverlayClick = e => {
+        if (e.target !== e.currentTarget) {return;};
+        this.props.toggleModal();
+    };
 
   render() {
     const { image, name } = this.state;
-    return (
-      <div className={css.overlay}>
-        <div className={css.modal}>
-          <img src={image} alt={name} />
-        </div>
-      </div>
-    );
+      return createPortal(
+        <div className={css.overlay} onClick={this.handleOverlayClick}>
+          <div className={css.modal}>
+            <img src={image} alt={name} />
+          </div>
+        </div>,
+        modalRoot
+      );
   }
 }
