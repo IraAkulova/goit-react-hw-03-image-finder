@@ -22,24 +22,12 @@ export class App extends Component {
   componentDidUpdate = (prevProps, prevState) => {
     if (prevState.page < this.state.page) {
       this.setState({ loading: true });
-
-      setTimeout(() => {
-        this.fetchImgs(this.state.query)
-          .then(imgs => this.setState({ images: [...prevState.images, ...imgs.hits] }))
-          .catch(this.onError)
-          .finally(() => {
-            this.setState({ loading: false });
-          });
-      }, 3000);
-
-      // this.fetchImgs(this.state.query)
-      //   .then(imgs =>
-      //     this.setState({ images: [...prevState.images, ...imgs.hits] })
-      //   )
-      //   .catch(this.onError)
-      //   .finally(() => {
-      //     this.setState({ loading: false });
-      //   });
+      this.fetchImgs(this.state.query)
+        .then(imgs => this.setState({ images: [...prevState.images, ...imgs.hits] }))
+        .catch(this.onError)
+        .finally(() => {
+          this.setState({ loading: false });
+        });
     }
   };
 
@@ -53,9 +41,14 @@ export class App extends Component {
 
   formSubmitHandler = ({ query }) => {
     this.setState({ query });
-    this.fetchImgs(query)
-      .then(imgs => this.setState({ images: imgs.hits }))
-      .catch(this.onError);
+          this.setState({ loading: true });
+
+      this.fetchImgs(query)
+        .then(imgs => this.setState({ images: imgs.hits }))
+        .catch(this.onError)
+        .finally(() => {
+          this.setState({ loading: false });
+        });
   };
 
   fetchImgs = query => {

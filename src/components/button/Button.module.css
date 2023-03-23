@@ -1,4 +1,7 @@
 .button {
+  margin-left: 43%;
+  margin-top: 16px;
+  margin-bottom: 16px;
   padding: 8px 16px;
   border-radius: 2px;
   background-color: #3f51b5;
