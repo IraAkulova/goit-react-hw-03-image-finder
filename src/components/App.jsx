@@ -21,24 +21,11 @@ export class App extends Component {
 
   componentDidUpdate = (prevProps, prevState) => {
     if (prevState.page < this.state.page) {
-      this.setState({ status: 'pending' });
-      setTimeout(() => {
-        this.fetchImgs(this.state.query)
-          .then(imgs =>
-            this.setState({
-              images: [...prevState.images, ...imgs.hits],
-              status: 'resolved',
-            })
-          )
-          .catch(
-            this.onError,
-            this.setState({
-              status: 'rejected',
-            })
-          );
-      }, 2000);
-      
-      
+      this.fetchImgs(this.state.query)
+        .then(imgs =>
+          this.setState({ images: [...prevState.images, ...imgs.hits] })
+        )
+        .catch(this.onError);
     }
   };
 
@@ -62,7 +49,7 @@ export class App extends Component {
   };
 
   onError = error => {
-    alert(`Oops, there is no images wiht such tag`, error.message);
+    alert(`Oops, there is no images wiht such tag`);
   };
 
   buttonClickHandler = () => {
@@ -72,20 +59,7 @@ export class App extends Component {
   };
 
   render() {
-    const { showModal, images, url, description, status } = this.state;
-
-    if (status === 'idle') {
-      return <Searchbar onSubmit={this.formSubmitHandler} />;
-    };
-    if (status === 'pending') {
-      return <Loader />;
-    };
-    if (status === 'resolved') {
-      return <ImageGallery images={images} toggleModal={this.toggleModal} />;
-    }
-    // if (status === 'rejectet') {
-    //   return <div><p></p></div>
-    // }
+    const { showModal, images, url, description } = this.state;
     return (
       <div>
         {showModal && (
@@ -95,11 +69,11 @@ export class App extends Component {
             toggleModal={this.toggleModal}
           />
         )}
-        {/* <Searchbar onSubmit={this.formSubmitHandler} /> */}
-        {/* {images.length === 0 && <Loader />} */}
-        {/* {images.length > 0 && (
+        <Searchbar onSubmit={this.formSubmitHandler} />
+        {images.length === 0 && <Loader />}
+        {images.length > 0 && (
           <ImageGallery images={images} toggleModal={this.toggleModal} />
-        )} */}
+        )}
         {images.length > 0 && <Button buttonClick={this.buttonClickHandler} />}
       </div>
     );
