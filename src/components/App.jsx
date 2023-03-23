@@ -25,9 +25,17 @@ export class App extends Component {
       setTimeout(() => {
         this.fetchImgs(this.state.query)
           .then(imgs =>
-            this.setState({ images: [...prevState.images, ...imgs.hits] })
+            this.setState({
+              images: [...prevState.images, ...imgs.hits],
+              status: 'resolved',
+            })
           )
-          .catch(this.onError);
+          .catch(
+            this.onError,
+            this.setState({
+              status: 'rejected',
+            })
+          );
       }, 2000);
       
       
@@ -87,11 +95,11 @@ export class App extends Component {
             toggleModal={this.toggleModal}
           />
         )}
-        <Searchbar onSubmit={this.formSubmitHandler} />
-        {images.length === 0 && <Loader />}
-        {images.length > 0 && (
+        {/* <Searchbar onSubmit={this.formSubmitHandler} /> */}
+        {/* {images.length === 0 && <Loader />} */}
+        {/* {images.length > 0 && (
           <ImageGallery images={images} toggleModal={this.toggleModal} />
-        )}
+        )} */}
         {images.length > 0 && <Button buttonClick={this.buttonClickHandler} />}
       </div>
     );
