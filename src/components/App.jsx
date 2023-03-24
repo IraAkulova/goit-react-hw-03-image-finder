@@ -5,6 +5,9 @@ import { Loader } from './loader/Loader';
 import { Modal } from './modal/Modal';
 import { Searchbar } from './searchbar/Searchbar';
 
+const controller = new AbortController();
+const signal = controller.signal;
+
 export class App extends Component {
   KEY = '33290430-0314363842258507589316bae';
   BASE_URL = 'https://pixabay.com/api/';
@@ -17,18 +20,31 @@ export class App extends Component {
     url: '',
     description: '',
     loading: false,
+    error: null,
   };
 
   componentDidUpdate = (prevProps, prevState) => {
     if (prevState.page < this.state.page) {
-      this.setState({ loading: true });
-      this.fetchImgs(this.state.query)
-        .then(imgs => this.setState({ images: [...prevState.images, ...imgs.hits] }))
-        .catch(this.onError)
+      this.setState({ loading: true, images: [] });
+      this.fetchImgs(this.state.query, signal)
+        .then(imgs => { 
+          if (imgs.hits.length === 0) {
+            return Promise.reject(
+              new Error(`Oops, there is no images with tag ${this.state.query}`)
+            );
+          }
+          this.setState({ images: [...prevState.images, ...imgs.hits] })
+        })
+        .catch(error => this.setState({error}))
         .finally(() => {
           this.setState({ loading: false });
+          console.log(this.state.error)
         });
     }
+  };
+
+  componentWillUnmount = () => {
+    controller.abort();
   };
 
   toggleModal = (image, name) => {
@@ -41,14 +57,22 @@ export class App extends Component {
 
   formSubmitHandler = ({ query }) => {
     this.setState({ query });
-          this.setState({ loading: true });
+          this.setState({ loading: true, images: [] });
 
-      this.fetchImgs(query)
-        .then(imgs => this.setState({ images: imgs.hits }))
-        .catch(this.onError)
-        .finally(() => {
-          this.setState({ loading: false });
-        });
+    this.fetchImgs(query)
+      .then(imgs => {
+        if (imgs.hits.length === 0) {
+          return Promise.reject(
+            new Error(`Oops, there is no images wiht tag ${this.state.query}`)
+          );
+        }
+        this.setState({ images: imgs.hits })
+      })
+      .catch(error => this.setState({ error }))
+      .finally(() => {
+        this.setState({ loading: false });
+        console.log(this.state.error);
+      });
   };
 
   fetchImgs = query => {
@@ -59,9 +83,9 @@ export class App extends Component {
     });
   };
 
-  onError = error => {
-    alert(`Oops, there is no images wiht such tag`);
-  };
+  // onError = error => {
+  //   alert(`Oops, there is no images wiht such tag`);
+  // };
 
   buttonClickHandler = () => {
     this.setState(prevState => {
@@ -70,7 +94,7 @@ export class App extends Component {
   };
 
   render() {
-    const { showModal, images, url, description, loading } = this.state;
+    const { showModal, images, url, description, loading, error } = this.state;
     return (
       <div>
         {showModal && (
@@ -81,6 +105,7 @@ export class App extends Component {
           />
         )}
         <Searchbar onSubmit={this.formSubmitHandler} />
+        {error && images.length === 0 && <h2>{error.message}</h2>}
         {images.length > 0 && (
           <ImageGallery images={images} toggleModal={this.toggleModal} />
         )}
