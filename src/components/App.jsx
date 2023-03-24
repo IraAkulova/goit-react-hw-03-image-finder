@@ -7,6 +7,7 @@ import { Searchbar } from './searchbar/Searchbar';
 
 const controller = new AbortController();
 const signal = controller.signal;
+let page = 0;
 
 export class App extends Component {
   KEY = '33290430-0314363842258507589316bae';
@@ -14,7 +15,7 @@ export class App extends Component {
 
   state = {
     images: [],
-    page: 1,
+    page: 0,
     query: '',
     showModal: false,
     url: '',
@@ -27,18 +28,18 @@ export class App extends Component {
     if (prevState.page < this.state.page) {
       this.setState({ loading: true, images: [] });
       this.fetchImgs(this.state.query, signal)
-        .then(imgs => { 
+        .then(imgs => {
           if (imgs.hits.length === 0) {
             return Promise.reject(
               new Error(`Oops, there is no images with tag ${this.state.query}`)
             );
           }
-          this.setState({ images: [...prevState.images, ...imgs.hits] })
+          this.setState({ images: [...prevState.images, ...imgs.hits] });
         })
-        .catch(error => this.setState({error}))
+        .catch(error => this.setState({ error }))
         .finally(() => {
           this.setState({ loading: false });
-          console.log(this.state.error)
+          console.log(this.state.error);
         });
     }
   };
@@ -56,6 +57,9 @@ export class App extends Component {
   };
 
   formSubmitHandler = ({ query }) => {
+    if (query !== this.state.query) {
+      page = 0;
+    };
     this.setState({ query });
           this.setState({ loading: true, images: [] });
 
@@ -76,16 +80,13 @@ export class App extends Component {
   };
 
   fetchImgs = query => {
+    page += 1;
     return fetch(
-      `${this.BASE_URL}?q=${query}&page=1&key=${this.KEY}&image_type=photo&orientation=horizontal&per_page=12&page=${this.state.page}`
+      `${this.BASE_URL}?q=${query}&page=1&key=${this.KEY}&image_type=photo&orientation=horizontal&per_page=12&page=${page}`
     ).then(response => {
       return response.json();
     });
   };
-
-  // onError = error => {
-  //   alert(`Oops, there is no images wiht such tag`);
-  // };
 
   buttonClickHandler = () => {
     this.setState(prevState => {
