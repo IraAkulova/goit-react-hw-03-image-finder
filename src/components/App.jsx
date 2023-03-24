@@ -63,7 +63,7 @@ export class App extends Component {
       .then(imgs => {
         if (imgs.hits.length === 0) {
           return Promise.reject(
-            new Error(`Oops, there is no images wiht tag ${this.state.query}`)
+            new Error(`Oops, there is no images with tag ${this.state.query}`)
           );
         }
         this.setState({ images: imgs.hits })
